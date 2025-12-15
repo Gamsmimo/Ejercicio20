@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de Temperatura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h2 {
+            color: white;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .thermometer {
+            text-align: center;
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="thermometer">🌡️</div>
+        <h1>Convertidor de Temperatura</h1>
+
+        <form id="tempForm">
+            <div class="form-group">
+                <label for="temperature">Temperatura:</label>
+                <input type="number" id="temperature" step="0.01" placeholder="Ingresa la temperatura">
+            </div>
+
+            <div class="form-group">
+                <label for="fromUnit">Convertir de:</label>
+                <select id="fromUnit">
+                    <option value="">Selecciona una unidad</option>
+                    <option value="celsius">Celsius (°C)</option>
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="kelvin">Kelvin (K)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="toUnit">Convertir a:</label>
+                <select id="toUnit">
+                    <option value="">Selecciona una unidad</option>
+                    <option value="celsius">Celsius (°C)</option>
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="kelvin">Kelvin (K)</option>
+                </select>
+            </div>
+
+            <button type="submit" id="convertBtn" disabled>Convertir</button>
+        </form>
+
+        <div class="result" id="result">
+            <h2>Resultado:</h2>
+            <p id="resultValue"></p>
+        </div>
+    </div>
+
+    <script>
+        const tempInput = document.getElementById('temperature');
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        const convertBtn = document.getElementById('convertBtn');
+        const resultDiv = document.getElementById('result');
+        const resultValue = document.getElementById('resultValue');
+        const form = document.getElementById('tempForm');
+
+        // Función para verificar si todos los campos están llenos
+        function checkFormValidity() {
+            const isValid = tempInput.value !== '' &&
+                fromUnit.value !== '' &&
+                toUnit.value !== '';
+            convertBtn.disabled = !isValid;
+        }
+
+        // Event listeners para validar el formulario
+        tempInput.addEventListener('input', checkFormValidity);
+        fromUnit.addEventListener('change', checkFormValidity);
+        toUnit.addEventListener('change', checkFormValidity);
+
+        // Función de conversión
+        function convertTemperature(value, from, to) {
+            let celsius;
+
+            // Primero convertir todo a Celsius
+            switch (from) {
+                case 'celsius':
+                    celsius = value;
+                    break;
+                case 'fahrenheit':
+                    celsius = (value - 32) * 5 / 9;
+                    break;
+                case 'kelvin':
+                    celsius = value - 273.15;
+                    break;
+            }
+
+            // Luego convertir de Celsius a la unidad deseada
+            let result;
+            switch (to) {
+                case 'celsius':
+                    result = celsius;
+                    break;
+                case 'fahrenheit':
+                    result = (celsius * 9 / 5) + 32;
+                    break;
+                case 'kelvin':
+                    result = celsius + 273.15;
+                    break;
+            }
+
+            return result;
+        }
+
+        // Función para obtener el símbolo de la unidad
+        function getUnitSymbol(unit) {
+            const symbols = {
+                'celsius': '°C',
+                'fahrenheit': '°F',
+                'kelvin': 'K'
+            };
+            return symbols[unit];
+        }
+
+        // Manejar el submit del formulario
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const temp = parseFloat(tempInput.value);
+            const from = fromUnit.value;
+            const to = toUnit.value;
+
+            const converted = convertTemperature(temp, from, to);
+
+            resultValue.textContent = `${converted.toFixed(2)} ${getUnitSymbol(to)}`;
+            resultDiv.classList.add('show');
+        });
+    </script>
+</body>
+
+</html>
